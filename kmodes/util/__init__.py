@@ -43,17 +43,22 @@ def encode_features(X, enc_map=None):
         enc_map = []
     else:
         fit = False
-
+    dec_map = []
     Xenc = np.zeros(X.shape).astype('int')
     for ii in range(X.shape[1]):
         if fit:
             col_enc = {val: jj for jj, val in enumerate(np.unique(X[:, ii]))
                        if not (isinstance(val, float) and np.isnan(val))}
             enc_map.append(col_enc)
+            col_dec = {jj:val for jj, val in enumerate(np.unique(X[:, ii]))
+                       if not (isinstance(val, float) and np.isnan(val))}
+            dec_map.append(col_dec)
+            # print(col_enc)
+            # print(col_dec)
         # Unknown categories (including np.NaNs) all get a value of -1.
         Xenc[:, ii] = np.array([enc_map[ii].get(x, -1) for x in X[:, ii]])
 
-    return Xenc, enc_map
+    return Xenc, enc_map, dec_map
 
 
 def decode_centroids(encoded, mapping):
