@@ -21,11 +21,15 @@ from .util.dissim import matching_dissim
 def init_huang(X, n_clusters, dissim):
     """Initialize centroids according to method by Huang [1997]."""
     nattrs = X.shape[1]
+    print('nattrs-------------------------->>>>>>',nattrs)
     centroids = np.empty((n_clusters, nattrs), dtype='object')
     # determine frequencies of attributes
     for iattr in range(nattrs):
         freq = defaultdict(int)
+        # loop values of each attribute
+        print('\nX[:, iattr]----------------------->>>>', X[:, iattr])
         for curattr in X[:, iattr]:
+            # print('\nfor--------->>>>', curattr)
             freq[curattr] += 1
         # Sample centroids using the probabilities of attributes.
         # (I assume that's what's meant in the Huang [1998] paper; it works,
@@ -37,16 +41,19 @@ def init_huang(X, n_clusters, dissim):
         # So that we are consistent between Python versions,
         # each with different dict ordering.
         choices = sorted(choices)
+        # print ('choices-------->>>>>',choices)
         centroids[:, iattr] = np.random.choice(choices, n_clusters)
+        print('centroid------->>>>>', centroids[:, iattr])
+    print('initial centroids1--------------------->>>>>\n', centroids)
     # The previously chosen centroids could result in empty clusters,
     # so set centroid to closest point in X.
     for ik in range(n_clusters):
-        ndx = np.argsort(dissim(X, centroids[ik]))
+        ndx = np.argsort(dissim(X, centroids[ik], dec_map))
         # We want the centroid to be unique.
         while np.all(X[ndx[0]] == centroids, axis=1).any():
             ndx = np.delete(ndx, 0)
         centroids[ik] = X[ndx[0]]
-
+    print('initial centroids2--------------------->>>>>\n', centroids)
     return centroids
 
 
@@ -124,7 +131,7 @@ def _labels_cost(X, centroids, dissim):
     cost = 0.
     labels = np.empty(npoints, dtype=np.uint8)
     for ipoint, curpoint in enumerate(X):
-        diss = dissim(centroids, curpoint)
+        diss = dissim(centroids, curpoint, dec_map)
         clust = np.argmin(diss)
         labels[ipoint] = clust
         cost += diss[clust]
@@ -136,7 +143,7 @@ def _k_modes_iter(X, centroids, cl_attr_freq, membship, dissim):
     """Single iteration of k-modes clustering algorithm"""
     moves = 0
     for ipoint, curpoint in enumerate(X):
-        clust = np.argmin(dissim(centroids, curpoint))
+        clust = np.argmin(dissim(centroids, curpoint, dec_map))
         if membship[clust, ipoint]:
             # Point is already in its right place.
             continue
@@ -177,8 +184,10 @@ def k_modes(X, n_clusters, max_iter, dissim, init, n_init, verbose):
 
     # Convert the categorical values in X to integers for speed.
     # Based on the unique values in X, we can make a mapping to achieve this.
-    X, enc_map = encode_features(X)
-
+    global dec_map
+    X, enc_map,dec_map = encode_features(X)
+    print(X)
+    print('encode-------------------------->>>>\n',enc_map)
     npoints, nattrs = X.shape
     assert n_clusters <= npoints, "Cannot have more clusters ({}) " \
                                   "than data points ({}).".format(n_clusters, npoints)
@@ -231,8 +240,11 @@ def k_modes(X, n_clusters, max_iter, dissim, init, n_init, verbose):
         cl_attr_freq = [[defaultdict(int) for _ in range(nattrs)]
                         for _ in range(n_clusters)]
         for ipoint, curpoint in enumerate(X):
+            print('\nclustering------------------>>>>')
+            print(curpoint)
             # Initial assignment to clusters
-            clust = np.argmin(dissim(centroids, curpoint))
+            clust = np.argmin(dissim(centroids, curpoint, dec_map))
+            print('clust----------------------->>>>', clust)
             membship[clust, ipoint] = 1
             # Count attribute values per cluster.
             for iattr, curattr in enumerate(curpoint):
