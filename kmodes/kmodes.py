@@ -27,7 +27,7 @@ def init_huang(X, n_clusters, dissim):
     for iattr in range(nattrs):
         freq = defaultdict(int)
         # loop values of each attribute
-        print('\nX[:, iattr]----------------------->>>>', X[:, iattr])
+        # print('\nX[:, iattr]----------------------->>>>', X[:, iattr])
         for curattr in X[:, iattr]:
             # print('\nfor--------->>>>', curattr)
             freq[curattr] += 1
@@ -186,8 +186,8 @@ def k_modes(X, n_clusters, max_iter, dissim, init, n_init, verbose):
     # Based on the unique values in X, we can make a mapping to achieve this.
     global dec_map
     X, enc_map,dec_map = encode_features(X)
-    print(X)
-    print('encode-------------------------->>>>\n',enc_map)
+    print('encode-------------------------->>>>\n',enc_map[0])
+    print(dec_map[0])
     npoints, nattrs = X.shape
     assert n_clusters <= npoints, "Cannot have more clusters ({}) " \
                                   "than data points ({}).".format(n_clusters, npoints)
