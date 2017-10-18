@@ -18,6 +18,9 @@ for l in lines:
     # print(l[0])
 
 def semantic_dismilarity(a, b):
+    if '' in a or '' in b:
+        # print(1)
+        return 1
     namea = ''
     nameb = ''
     if 'g' not in a and 'g' not in b:
@@ -31,17 +34,13 @@ def semantic_dismilarity(a, b):
         listb = list(map(lambda x: str.replace(id_name[x[1:]].strip(), '>',' ') if x else '', b.split(' ')))
         nameb = ' '.join(listb)
 
-    if '' in lista or '' in listb:
-        # print(1)
-        return 1
-    else:
-        if len(lista) <=len(listb):
-            sim = sum(map(lambda x: x in nameb, namea.split(' '))) / len(namea.split(' '))
-        else:
-            sim = sum(map(lambda x: x in namea, nameb.split(' '))) / len(nameb.split(' '))
-        # print(lista, listb, sim)
-        return 1-sim
 
+    if len(lista) <=len(listb):
+        sim = sum(map(lambda x: x in nameb, namea.split(' '))) / len(namea.split(' '))
+    else:
+        sim = sum(map(lambda x: x in namea, nameb.split(' '))) / len(nameb.split(' '))
+    # print(lista, listb, sim)
+    return 1-sim
 
 def multimatch_dissim(a, b, dec_map):
     nattrs = a.shape[1]
@@ -65,8 +64,8 @@ def multimatch_dissim(a, b, dec_map):
             valuea = vc.strip()
             valueb = strb[c].strip()
             if not any(i in valuea.split(' ')  for i in valueb.split(' ')) or not valuea or not valueb:
-                # print('column a--------------->>>>', valuea)
-                # print('column b--------------->>>>', valueb)
+#                print('column a--------------->>>>', valuea)
+#                print('column b--------------->>>>', valueb)
                 # print(semantic_dismilarity(valuea, valueb))
                 sum+= semantic_dismilarity(valuea, valueb)
         dis[r] = sum/4
