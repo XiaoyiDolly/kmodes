@@ -75,15 +75,15 @@ def multimatch_dissim(a, b, dec_map):
 
 
 # reproduce results on small data set
-x = np.genfromtxt('test.csv', dtype=str, delimiter=',')[:, 0:]
-y = np.genfromtxt('test.csv', dtype=str, delimiter=',', usecols=(0 ))
+x = np.genfromtxt('data_names/dataset_extract.csv', dtype=str, delimiter=',')[:, 0:]
+y = np.genfromtxt('data_names/dataset_extract.csv', dtype=str, delimiter=',', usecols=(0 ))
 # x = np.genfromtxt('data/dataset_extract.csv', dtype=str, delimiter=',')[:, 1:]  # test.csv
 # y = np.genfromtxt('data/dataset_extract.csv', dtype=str, delimiter=',', usecols=(0 ))
 print(y)
 print(x.shape)
 print(y.shape)
 dataNum = y.shape[0]
-n_clusters = 10
+n_clusters = 100
 kmodes_huang = KModes(n_clusters=n_clusters, cat_dissim=multimatch_dissim, init='Huang',n_init=1, verbose=1)
 kmodes_huang.fit(x)
 
