@@ -187,16 +187,17 @@ print('Training iterations: {}'.format(kmodes_huang.n_iter_))
 
 print('Results tables:')
 
-# with open('cluster_results','w') as wf:
+
 np.savetxt('labels.out',kmodes_huang.labels_,  fmt='%i',delimiter=',')
 np.savetxt('centroids.out',kmodes_huang.cluster_centroids_, fmt='%s',delimiter=',')
 
 for result in (kmodes_huang,): #, kmodes_cao):
+    # with open('cluster_results','w') as wf:
     classtable = np.zeros((dataNum,n_clusters), dtype=int)
     for ii, _ in enumerate(y):
 
         classtable[int(y[ii][-1]) - 1, result.labels_[ii]] += 1
-
+    np.savetxt('classtable.out', classtable, fmt='%i', delimiter=',')
     print("\n")
     print("    | Cl. 1 | Cl. 2 | Cl. 3 | Cl. 4 |")
     print("----|-------|-------|-------|-------|")
