@@ -52,13 +52,9 @@ for l in lines:
     if l[0] ==77:
         print('*********',l)
 
-print (id_cat['0'])
-print (id_cat['82'])
-print (id_cat['6543'])
-print (id_cat['143'])
-
 def semantic_disimilarity(a, b):
-    print(a, b)
+    # print(a)
+    # print(b)
     if not a or not b:
         # print(1)
         return 1
@@ -75,7 +71,7 @@ def semantic_disimilarity(a, b):
         sim = sum(map(lambda x: x in nameb, namea.split(' '))) / len(namea.split(' '))
     else:
         sim = sum(map(lambda x: x in namea, nameb.split(' '))) / len(nameb.split(' '))
-    print('sem sim: ', sim)
+    # print('sem sim: ', sim)
     return 1-sim
 
 def jaccard(a, b):
@@ -97,8 +93,8 @@ def class_disimilarity(a, b):
     for x in b.split(' '):
         classb.append(id_cat[x[1:]])
     # map(lambda x: classb.append(id_cat[x[1:]]), b.split(' '))
-    print(classa)
-    print(classb)
+    # print(classa)
+    # print(classb)
     if len(classa) <=len(classb):
         maxsim = 0
         for c in classa:
@@ -111,41 +107,35 @@ def class_disimilarity(a, b):
             sim = max(map(lambda x: jaccard(c, x), classa))
             if sim > maxsim:
                 maxsim = sim
-    print('cat sim: ', maxsim)
+    # print('cat sim: ', maxsim)
     return 1-maxsim
 
 def multimatch_dissim(a, b, dec_map):
     nattrs = a.shape[1]
-    stra = np.empty(a.shape).astype('str') # np.ones([a.shape[0], a.shape[1]], dtype=str)
-    strb = np.empty(b.shape).astype('str') # np.ones([b.shape[0], ], dtype=str)
-    # print('initial stra------------------>>>>>',stra)
+    stra = np.empty(a.shape).astype('object') # np.ones([a.shape[0], a.shape[1]], dtype=str)
+    strb = np.empty(b.shape).astype('object') # np.ones([b.shape[0], ], dtype=str)
+
     for iattr in range(nattrs):
-        # print(iattr)
         att_str = dec_map[iattr]
-        # print (att_str)
         squarer = lambda t: att_str[t]
         vfunc = np.vectorize(squarer)
         strb[iattr] = vfunc(b[iattr])
         stra[:, iattr] = vfunc(a[:, iattr])
-
     dis = np.empty([a.shape[0],], dtype=int)
 
     for r,vr in enumerate(stra):
         sum = 0
+        # print(vr)
         for c, vc in enumerate(vr):
-            valuea = vc.strip()
-            valueb = strb[c].strip()
-            # if valuea
-            # if not any(i in valuea.split(' ')  for i in valueb.split(' ')) or not valuea or not valueb:
-            print('column a--------------->>>>', valuea)
-            print('column b--------------->>>>', valueb)
-            # print(semantic_disimilarity(valuea, valueb))
-            # print(class_disimilarity(valuea, valueb))
+            # print(vc)
+
+            valuea = str(vc).strip()
+            valueb = str(strb[c]).strip()
             if 'd' in valuea or 'd' in valueb:
-                print('include d')
+                # print('include d')
                 sum+= semantic_disimilarity(valuea, valueb)
             else:
-                print('not include d')
+                # print('not include d')
                 sum +=0.3 * semantic_disimilarity(valuea, valueb) + 0.7*class_disimilarity(valuea, valueb)
 
         dis[r] = sum/4
@@ -160,12 +150,12 @@ def multimatch_dissim(a, b, dec_map):
 # y = np.genfromtxt('data_names/dataset_extract.csv', dtype=str, delimiter=',', usecols=(0 ))
 x = np.genfromtxt('data_category/dataset_extract.csv', dtype=str, delimiter=',')[:, 0:]  # test.csv
 y = np.genfromtxt('data_category/dataset_extract.csv', dtype=str, delimiter=',', usecols=(0 ))
-print(y)
+print(x[19969])
 print(x.shape)
 print(y.shape)
 dataNum = y.shape[0]
 n_clusters = 100
-kmodes_huang = KModes(n_clusters=n_clusters, cat_dissim=multimatch_dissim, init='Huang',n_init=1, verbose=1)
+kmodes_huang = KModes(n_clusters=n_clusters, cat_dissim=multimatch_dissim, init='Huang',n_init=1, verbose=0)
 kmodes_huang.fit(x)
 
 # Print cluster centroids of the trained model.
