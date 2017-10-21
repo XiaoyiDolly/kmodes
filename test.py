@@ -131,12 +131,15 @@ def multimatch_dissim(a, b, dec_map):
             valueb = str(strb[c]).strip()
             if 'd' in valuea or 'd' in valueb:
                 # print('include d')
-                sum+= semantic_disimilarity(valuea, valueb)
+                sum+= 0.4*semantic_disimilarity(valuea, valueb)
+            elif 'i' in valuea or 'i' in valueb:
+                # print('not include d')
+                sum +=0.4*(class_disimilarity(valuea, valueb))#0.3 * semantic_disimilarity(valuea, valueb) + 0.8*
             else:
                 # print('not include d')
-                sum +=0.3 * semantic_disimilarity(valuea, valueb) + 0.7*class_disimilarity(valuea, valueb)
+                sum += 0.1 * (class_disimilarity(valuea, valueb))# 0.3 * semantic_disimilarity(valuea, valueb) + 0.7 *
 
-        dis[r] = sum/4
+        dis[r] = sum
     # print(dis)
     return dis
 
