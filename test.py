@@ -140,10 +140,10 @@ def multimatch_dissim(a, b, dec_map):
     # print(dis)
     return dis
 
-x = np.genfromtxt('test.csv', dtype=str, delimiter=',')[:, 0:]  # test.csv
-y = np.genfromtxt('test.csv', dtype=str, delimiter=',', usecols=(0 ))
-# x = np.genfromtxt('data_category/dataset_extract.csv', dtype=str, delimiter=',')[:, 0:]  # test.csv
-# y = np.genfromtxt('data_category/dataset_extract.csv', dtype=str, delimiter=',', usecols=(0 ))#data_category/dataset_extract.csv
+# x = np.genfromtxt('test.csv', dtype=str, delimiter=',')[:, 0:]  # test.csv
+# y = np.genfromtxt('test.csv', dtype=str, delimiter=',', usecols=(0 ))
+x = np.genfromtxt('data_category/dataset_extract.csv', dtype=str, delimiter=',')[:, 0:]  # test.csv
+y = np.genfromtxt('data_category/dataset_extract.csv', dtype=str, delimiter=',', usecols=(0 ))#data_category/dataset_extract.csv
 
 print(x.shape)
 print(y.shape)
