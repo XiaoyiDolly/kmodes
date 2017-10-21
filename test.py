@@ -4,7 +4,6 @@
 import numpy as np
 from kmodes.kmodes import KModes
 
-# import sys
 
 # reload(sys)
 # sys.setdefaultencoding('utf8')
@@ -49,8 +48,7 @@ for l in lines:
         # print('2222222', l)
         id_cat[l[0]] = l[1].split('>')
         id_name[l[0]] = l[1].split('>')[-1].lower()
-    if l[0] ==77:
-        print('*********',l)
+
 
 def semantic_disimilarity(a, b):
     # print(a)
@@ -139,23 +137,19 @@ def multimatch_dissim(a, b, dec_map):
                 sum +=0.3 * semantic_disimilarity(valuea, valueb) + 0.7*class_disimilarity(valuea, valueb)
 
         dis[r] = sum/4
-    print(dis)
+    # print(dis)
     return dis
 
-# global id_name
-# global id_cat
-# id_name, id_cat = init('n&c')
-# reproduce results on small data set
-# x = np.genfromtxt('data_names/dataset_extract.csv', dtype=str, delimiter=',')[:, 0:]
-# y = np.genfromtxt('data_names/dataset_extract.csv', dtype=str, delimiter=',', usecols=(0 ))
-x = np.genfromtxt('data_category/dataset_extract.csv', dtype=str, delimiter=',')[:, 0:]  # test.csv
-y = np.genfromtxt('data_category/dataset_extract.csv', dtype=str, delimiter=',', usecols=(0 ))
-print(x[19969])
+x = np.genfromtxt('test.csv', dtype=str, delimiter=',')[:, 0:]  # test.csv
+y = np.genfromtxt('test.csv', dtype=str, delimiter=',', usecols=(0 ))
+# x = np.genfromtxt('data_category/dataset_extract.csv', dtype=str, delimiter=',')[:, 0:]  # test.csv
+# y = np.genfromtxt('data_category/dataset_extract.csv', dtype=str, delimiter=',', usecols=(0 ))#data_category/dataset_extract.csv
+
 print(x.shape)
 print(y.shape)
 dataNum = y.shape[0]
 n_clusters = 100
-kmodes_huang = KModes(n_clusters=n_clusters, cat_dissim=multimatch_dissim, init='Huang',n_init=1, verbose=0)
+kmodes_huang = KModes(n_clusters=n_clusters, cat_dissim=multimatch_dissim, init='Huang', verbose=0)
 kmodes_huang.fit(x)
 
 # Print cluster centroids of the trained model.
@@ -165,41 +159,21 @@ print(kmodes_huang.cluster_centroids_)
 print('Final training cost: {}'.format(kmodes_huang.cost_))
 print('Training iterations: {}'.format(kmodes_huang.n_iter_))
 
-# kmodes_cao = KModes(n_clusters=4, init='Cao', verbose=1)
-# kmodes_cao.fit(x)
-#
-# # Print cluster centroids of the trained model.
-# print('k-modes (Cao) centroids:')
-# print(kmodes_cao.cluster_centroids_)
-# # Print training statistics
-# print('Final training cost: {}'.format(kmodes_cao.cost_))
-# print('Training iterations: {}'.format(kmodes_cao.n_iter_))
 
-print('Results tables:')
-
-
+print('Save tables:')
 np.savetxt('labels.out',kmodes_huang.labels_,  fmt='%i',delimiter=',')
 np.savetxt('centroids.out',kmodes_huang.cluster_centroids_, fmt='%s',delimiter=',')
 
-for result in (kmodes_huang,): #, kmodes_cao):
-    # with open('cluster_results','w') as wf:
-    classtable = np.zeros((dataNum,n_clusters), dtype=int)
-    for ii, _ in enumerate(y):
+result = {}
+for i, d in enumerate(y):
+    clus = kmodes_huang.labels_[i]
+    if clus not in result:
+        result[clus] = []
+    result[clus].append(d)
 
-        classtable[int(y[ii][-1]) - 1, result.labels_[ii]] += 1
-    np.savetxt('classtable.out', classtable, fmt='%i', delimiter=',')
-    print("\n")
-    print("    | Cl. 1 | Cl. 2 | Cl. 3 | Cl. 4 |")
-    print("----|-------|-------|-------|-------|")
-    for ii in range(dataNum):
-        prargs = tuple([ii + 1] + list(classtable[ii, :]))
-        # print(ii)
-        # print(prargs)
-        print(" D{0} |    {1:>2} |    {2:>2} |    {3:>2} |    {4:>2} |".format(*prargs))
-    # table = np.around(classtable[ii, :], decimals=2)
-    # np.savetxt('test.out', np.around(classtable[ii, :], decimals=2), delimiter=',')
-    # with open('cluster_results','w') as wf:
-    #     for ii in range(dataNum):
-    #         [ii + 1] + list(classtable[ii, :])
-    #         wf.write(classtable[ii, :])
-    #         wf.write('\n')
+# print(result)
+with open('clusters.txt','w') as f:
+    for id, values in result.items():
+        f.write(str(id)+':')
+        f.write(" ".join(values))
+        f.write('\n')

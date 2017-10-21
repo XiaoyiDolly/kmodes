@@ -186,8 +186,8 @@ def k_modes(X, n_clusters, max_iter, dissim, init, n_init, verbose):
     # Based on the unique values in X, we can make a mapping to achieve this.
     global dec_map
     X, enc_map,dec_map = encode_features(X)
-    print('encode-------------------------->>>>\n',enc_map[0])
-    print(dec_map[0])
+    # print('encode-------------------------->>>>\n',enc_map[0])
+    # print(dec_map[0])
     npoints, nattrs = X.shape
     assert n_clusters <= npoints, "Cannot have more clusters ({}) " \
                                   "than data points ({}).".format(n_clusters, npoints)
@@ -240,11 +240,11 @@ def k_modes(X, n_clusters, max_iter, dissim, init, n_init, verbose):
         cl_attr_freq = [[defaultdict(int) for _ in range(nattrs)]
                         for _ in range(n_clusters)]
         for ipoint, curpoint in enumerate(X):
-            print('\nclustering------------------>>>>')
-            print(curpoint)
+            # print('\nclustering------------------>>>>')
+            # print(curpoint)
             # Initial assignment to clusters
             clust = np.argmin(dissim(centroids, curpoint, dec_map))
-            print('clust----------------------->>>>', clust)
+            # print('clust----------------------->>>>', clust)
             membship[clust, ipoint] = 1
             # Count attribute values per cluster.
             for iattr, curattr in enumerate(curpoint):
