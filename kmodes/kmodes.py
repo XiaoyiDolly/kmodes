@@ -21,7 +21,7 @@ from .util.dissim import matching_dissim
 def init_huang(X, n_clusters, dissim):
     """Initialize centroids according to method by Huang [1997]."""
     nattrs = X.shape[1]
-    print('nattrs-------------------------->>>>>>',nattrs)
+    # print('nattrs-------------------------->>>>>>',nattrs)
     centroids = np.empty((n_clusters, nattrs), dtype='object')
     # determine frequencies of attributes
     for iattr in range(nattrs):
@@ -43,8 +43,8 @@ def init_huang(X, n_clusters, dissim):
         choices = sorted(choices)
         # print ('choices-------->>>>>',choices)
         centroids[:, iattr] = np.random.choice(choices, n_clusters)
-        print('centroid------->>>>>', centroids[:, iattr])
-    print('initial centroids1--------------------->>>>>\n', centroids)
+    #     print('centroid------->>>>>', centroids[:, iattr])
+    # print('initial centroids1--------------------->>>>>\n', centroids)
     # The previously chosen centroids could result in empty clusters,
     # so set centroid to closest point in X.
     for ik in range(n_clusters):
@@ -53,7 +53,7 @@ def init_huang(X, n_clusters, dissim):
         while np.all(X[ndx[0]] == centroids, axis=1).any():
             ndx = np.delete(ndx, 0)
         centroids[ik] = X[ndx[0]]
-    print('initial centroids2--------------------->>>>>\n', centroids)
+    # print('initial centroids2--------------------->>>>>\n', centroids)
     return centroids
 
 
@@ -130,12 +130,15 @@ def _labels_cost(X, centroids, dissim):
     npoints = X.shape[0]
     cost = 0.
     labels = np.empty(npoints, dtype=np.uint8)
+    # print('<<<<<<------------------min clust')
+    # print(centroids)
     for ipoint, curpoint in enumerate(X):
         diss = dissim(centroids, curpoint, dec_map)
+        # print('diss>>>>>>>>>>>>>>', diss)
         clust = np.argmin(diss)
         labels[ipoint] = clust
         cost += diss[clust]
-
+        # print(clust,' min///', diss[clust])
     return labels, cost
 
 
@@ -267,6 +270,7 @@ def k_modes(X, n_clusters, max_iter, dissim, init, n_init, verbose):
         while itr <= max_iter and not converged:
             itr += 1
             centroids, moves = _k_modes_iter(X, centroids, cl_attr_freq, membship, dissim)
+            # print(moves)
             # All points seen in this iteration
             labels, ncost = _labels_cost(X, centroids, dissim)
             converged = (moves == 0) or (ncost >= cost)
@@ -349,7 +353,7 @@ class KModes(BaseEstimator, ClusterMixin):
     """
 
     def __init__(self, n_clusters=8, max_iter=100, cat_dissim=matching_dissim,
-                 init='Cao', n_init=1, verbose=0):
+                 init='Cao', n_init=10, verbose=0):
 
         self.n_clusters = n_clusters
         self.max_iter = max_iter
