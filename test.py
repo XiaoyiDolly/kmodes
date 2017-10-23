@@ -119,7 +119,7 @@ def multimatch_dissim(a, b, dec_map):
         vfunc = np.vectorize(squarer)
         strb[iattr] = vfunc(b[iattr])
         stra[:, iattr] = vfunc(a[:, iattr])
-    dis = np.empty([a.shape[0],], dtype=int)
+    dis = np.empty([a.shape[0],], dtype=float)
 
     for r,vr in enumerate(stra):
         sum = 0
@@ -138,7 +138,7 @@ def multimatch_dissim(a, b, dec_map):
             else:
                 # print('not include d')
                 sum += 0.1 * (class_disimilarity(valuea, valueb))# 0.3 * semantic_disimilarity(valuea, valueb) + 0.7 *
-
+        # print('^^^^^^^^^^^^^^',vr,sum)
         dis[r] = sum
     # print(dis)
     return dis
@@ -151,32 +151,35 @@ y = np.genfromtxt('data_category/dataset_extract.csv', dtype=str, delimiter=',',
 print(x.shape)
 print(y.shape)
 dataNum = y.shape[0]
-n_clusters = 100
-kmodes_huang = KModes(n_clusters=n_clusters, cat_dissim=multimatch_dissim, init='Huang', verbose=0)
-kmodes_huang.fit(x)
+n_clusters = [100,300,500,600,1000]
+for nc in n_clusters:
+    kmodes_huang = KModes(n_clusters=nc, cat_dissim=multimatch_dissim, init='Huang',   verbose=0)
+    kmodes_huang.fit(x)
 
-# Print cluster centroids of the trained model.
-print('k-modes (Huang) centroids:')
-print(kmodes_huang.cluster_centroids_)
-# Print training statistics
-print('Final training cost: {}'.format(kmodes_huang.cost_))
-print('Training iterations: {}'.format(kmodes_huang.n_iter_))
+    # with open('summary'+str(nc)+'.txt','w') as f:
+        # Print cluster centroids of the trained model.
+        # f.write('k-modes (Huang) centroids:')
+        # print(kmodes_huang.cluster_centroids_)
+        # Print training statistics
+    print('For number of clusters ', nc)
+    print('Final training cost: {}'.format(kmodes_huang.cost_))
+    print('Training iterations: {}'.format(kmodes_huang.n_iter_))
 
+    print('Save tables:')
+    np.savetxt('labels'+str(nc)+'.out',kmodes_huang.labels_,  fmt='%i',delimiter=',')
+    np.savetxt('centroids'+str(nc)+'.out',kmodes_huang.cluster_centroids_, fmt='%s',delimiter=',')
 
-print('Save tables:')
-np.savetxt('labels.out',kmodes_huang.labels_,  fmt='%i',delimiter=',')
-np.savetxt('centroids.out',kmodes_huang.cluster_centroids_, fmt='%s',delimiter=',')
+    result = {}
+    for i, d in enumerate(y):
+        clus = kmodes_huang.labels_[i]
+        if clus not in result:
+            result[clus] = []
+        result[clus].append(d)
 
-result = {}
-for i, d in enumerate(y):
-    clus = kmodes_huang.labels_[i]
-    if clus not in result:
-        result[clus] = []
-    result[clus].append(d)
-
-# print(result)
-with open('clusters.txt','w') as f:
-    for id, values in result.items():
-        f.write(str(id)+':')
-        f.write(" ".join(values))
-        f.write('\n')
+    # print(result)
+    with open('clusters'+str(nc)+'.txt','w') as f:
+        for id, values in result.items():
+            f.write(str(id)+':')
+            f.write(" ".join(values))
+            f.write('\n')
+    print('====================================\n')
